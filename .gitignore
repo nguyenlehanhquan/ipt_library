@@ -1,0 +1,17 @@
+# IDE
+.idea/
+.vscode/
+
+# Logs
+*.log
+
+# OS junk
+.DS_Store
+
+# Node.js
+node_modules/
+dist/
+
+# Java (Spring Boot, Maven/Gradle)
+target/
+build/
