@@ -1,0 +1,44 @@
+.footer {
+  background: #0172bc;
+  color: #fff;
+  padding: 15px 20px 5px 20px;
+  border-bottom: #f7941e 6px solid;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.info {
+  h5 {
+    color: #f7941e;
+    margin-bottom: 10px;
+  }
+
+  p {
+    margin: 4px 0;
+    font-size: 14px;
+    letter-spacing: 1px;
+  }
+}
+
+.copyright {
+  font-size: 22px;
+  padding: 0;
+  margin-bottom: 4px;
+}
+
+/* fixed footer ở đáy */
+.footer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9
+}
+
+:global(body) {
+  padding-bottom: 120px;
+}
+

@@ -1,0 +1,105 @@
+$blue: #0172bc;
+$orange: #f7941e;
+$white: #fff;
+
+.wrapper {
+  min-height: 60vh;
+  display: grid;
+  place-items: center;
+  background: $white;
+  padding: 24px;
+}
+
+.card {
+  width: min(720px, 94vw);
+  background: $white;
+  border-radius: 16px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+  border: 2px solid rgba($blue, 0.06);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 18px;
+  background: linear-gradient(135deg, $blue 60%, $orange 40%);
+}
+
+.title {
+  margin: 0;
+  color: $white;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.badge {
+  background: rgba($white, 0.2);
+  color: $white;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.body {
+  padding: 18px;
+  display: grid;
+  gap: 12px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 12px;
+  border: 1px solid rgba($blue, 0.18);
+  border-radius: 10px;
+}
+
+.label {
+  color: $blue;
+  font-weight: 700;
+}
+
+.value {
+  color: #333;
+  font-weight: 600;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 18px 18px;
+}
+
+.btnGhost {
+  background: $blue;
+  color: $white;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-weight: 700;
+  cursor: pointer;
+
+  &:hover {
+    background: $orange;
+  }
+}
+
+.btnPrimary {
+  background: $white;
+  color: $blue;
+  border: 1.5px solid $blue;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-weight: 700;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba($blue, 0.06);
+  }
+}

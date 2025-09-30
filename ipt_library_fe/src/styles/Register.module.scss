@@ -1,0 +1,104 @@
+// Colors
+$blue: #0172bc;
+$orange: #f7941e;
+$white: #fff;
+
+.register_page {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, $orange 45%, $blue 40%);
+  position: fixed;   /* khóa theo viewport */
+  inset: 0;          /* top/right/bottom/left: 0 */
+  overflow: hidden;  /* không cho cuộn trong trang login */
+}
+
+.register_box {
+  width: 400px;
+  background: $white;
+  padding: 50px 50px;
+  border-radius: 12px;
+  box-shadow: 0 10px 24px rgba(0,0,0,.15);
+}
+
+.title {
+  margin: 0 0 22px;
+  text-align: center;
+  color: $blue;
+  letter-spacing: .3px;
+}
+
+.form_group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+
+  label {
+    margin-bottom: 6px;
+    font-size: 18px;
+    color: $blue;
+  }
+
+  input,
+  select {
+    height: 42px;
+    padding: 0 12px;
+    border: 1px solid $blue;
+    border-radius: 8px;
+    font-size: 16px;
+    background: $white;
+
+    &:focus {
+      outline: none;
+      border-color: $orange;
+      box-shadow: 0 0 0 3px rgba(247,148,30,.25);
+    }
+  }
+}
+
+.btn_submit {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background: $blue;
+  color: $white;
+  font-weight: 600;
+  letter-spacing: .2px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  font-size: 18px;
+  margin-top: 10px;
+
+  &:hover { background: #f7941e; }
+  &:active { transform: translateY(1px); }
+}
+
+/* responsive vừa đủ */
+@media (max-width: 420px) {
+  .register_box { width: 92vw; padding: 28px 20px; }
+}
+
+.return {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  margin: 0;
+
+  button {
+    border-radius: 6px;
+    background: #fff;
+    font-weight: bold;
+    color: $orange;
+    padding: 12px 20px;
+    font-size: 16px;
+    border: none;
+
+    &:hover {
+      background: $blue;
+      color: $white;
+      font-weight: bold;
+    }
+  }
+}

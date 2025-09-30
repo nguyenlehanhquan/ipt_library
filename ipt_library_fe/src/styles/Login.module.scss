@@ -1,0 +1,100 @@
+// Colors
+$blue: #0172bc;
+$orange: #f7941e;
+$white: #fff;
+
+.login_page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: linear-gradient(135deg, $blue 55%, $orange 40%);
+  margin-bottom: 0;
+  position: fixed;   /* khóa theo viewport */
+  inset: 0;          /* top/right/bottom/left: 0 */
+  overflow: hidden;  /* không cho cuộn trong trang login */
+}
+
+.login_box {
+  background: $white;
+  padding: 50px 50px;
+  border-radius: 12px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
+  width: 400px;
+}
+
+.title {
+  text-align: center;
+  color: $blue;
+  margin-bottom: 25px;
+}
+
+.form_group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+
+  label {
+    margin-bottom: 6px;
+    font-size: 18px;
+    color: $blue;
+  }
+
+  input {
+    padding: 10px 12px;
+    border: 1px solid $blue;
+    border-radius: 6px;
+    font-size: 16px;
+
+    &:focus {
+      outline: none;
+      border-color: $orange;
+      box-shadow: 0 0 0 2px rgba(247, 148, 30, 0.3);
+    }
+  }
+}
+
+.btn_login {
+  width: 100%;
+  padding: 12px;
+  background: $blue;
+  color: $white;
+  border: none;
+  border-radius: 6px;
+  font-size: 18px;
+  letter-spacing: .2px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  margin-top: 10px;
+
+  &:hover {
+    background: $orange;
+  }
+}
+
+.return {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  margin: 0;
+
+  button {
+    border-radius: 6px;
+    background: #fff;
+    font-weight: bold;
+    color: $blue;
+    padding: 12px 20px;
+    font-size: 16px;
+    border: none;
+
+    &:hover {
+      background: $orange;
+      color: $white;
+      font-weight: bold;
+    }
+  }
+}
+
+
+
