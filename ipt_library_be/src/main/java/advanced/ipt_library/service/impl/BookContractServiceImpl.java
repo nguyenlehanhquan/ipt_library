@@ -10,7 +10,7 @@ import advanced.ipt_library.repository.ContractRepository;
 import advanced.ipt_library.request.BookContractRequest;
 import advanced.ipt_library.response.BookContractResponse;
 import advanced.ipt_library.service.BookContractService;
-import io.micrometer.common.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -153,6 +153,20 @@ public class BookContractServiceImpl implements BookContractService {
                 .filter(ar -> ar.getArchiveType() == ArchiveType.SIGNED_SHEET)
                 .collect(Collectors.toMap(archive -> archive.getShelf(), archive -> archive));
 
+        // Lấy all bookContract -> list key (A_B_E_F) đã tồn tại trong DB
+        List<BookContract> currentBookContracts = bookContractRepository.findAll();
+        // map<String, bookContract> ở DB --> key(A_B_E_F), value: bookContract
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+        Map<String, BookContract> mapBookContractByKey = currentBookContracts.stream()
+                .collect(Collectors.toMap(
+                        bc ->
+                                bc.getContract().getCode() + "_"
+                                + bc.getOrderNumber() + "_"
+                                + (Objects.nonNull(bc.getDeliveryDate()) ? sdf.format(bc.getDeliveryDate()) : StringUtils.EMPTY) + "_"
+                                + bc.getBook().getIsbn(), bookContract -> bookContract));
+        // trong for
+        // String key = A_B_E_F lấy từ trong excel
+
         try {
             Workbook workbook = new XSSFWorkbook(file.getInputStream()); // lấy được file excel ra
             Sheet sheet = workbook.getSheetAt(0); // lấy được sheet đầu tiên
@@ -160,6 +174,9 @@ public class BookContractServiceImpl implements BookContractService {
             for (Row row : sheet) {
                 if (row.getRowNum() == 0) {
                     continue;
+                }
+                if (StringUtils.isEmpty(row.getCell(2).getStringCellValue())) { // để tránh nó đọc vào hàng rỗng và vẫn đọc --> lỗi
+                    break;
                 }
                 // đọc dữ liệu
                 String contractCode = row.getCell(0).getStringCellValue(); // A
@@ -183,43 +200,47 @@ public class BookContractServiceImpl implements BookContractService {
                 String signedSheetShelf = Objects.nonNull(row.getCell(14)) ? String.valueOf(row.getCell(14)) : null; // O
                 String signedSheetLocation = Objects.nonNull(row.getCell(15)) ? String.valueOf(row.getCell(15)) : null; // P
                 String signedSheetQuantity = Objects.nonNull(row.getCell(16)) ? String.valueOf(row.getCell(16)) : null; // Q
-                String signedSheetRemark = Objects.nonNull(row.getCell(17)) ? String.valueOf(row.getCell(17)) : null; // R0
+                String signedSheetRemark = Objects.nonNull(row.getCell(17)) ? String.valueOf(row.getCell(17)) : null; // R
 
-                // tìm xem sách tồn tại chưa
+                String key = contractCode + "_" + orderNumber + "_" + (Objects.nonNull(deliveryDate) ? sdf.format(deliveryDate) : StringUtils.EMPTY) + "_" + isbn;
 
-                // tìm xem vị trị lưu tồn tại chưa
-
-                // tạo bookcontract, lưu bookcontract
-                BookContract bookContract = new BookContract(); // tạo đối tượng, chưa lưu vào DB
-                bookContract.setOrderNumber(orderNumber);
-                bookContract.setCustomerNumber(customerCode);
-                bookContract.setDeliveryDate(deliveryDate);
-
-                if (mapBookByCode.containsKey(isbn)) {
-                    Book book = mapBookByCode.get(isbn);
-                    bookContract.setBook(book);
+                BookContract bookContract;
+                if (mapBookContractByKey.containsKey(key)) {
+                    // lấy bookContract đã tồn tại
+                    bookContract = mapBookContractByKey.get(key);
                 } else {
-                    Book book = new Book();
-                    book.setIsbn(isbn);
-                    book.setDescription(description);
+                    // tạo bookcontract, lưu bookcontract
+                    bookContract = new BookContract();
+                    bookContract.setOrderNumber(orderNumber); // B
+                    bookContract.setDeliveryDate(deliveryDate); // E
 
-                    newBooks.add(book);
-                    bookContract.setBook(book);
-                    mapBookByCode.put(isbn, book);
+                    if (mapBookByCode.containsKey(isbn)) { // C, F
+                        Book book = mapBookByCode.get(isbn);
+                        bookContract.setBook(book);
+                    } else {
+                        Book book = new Book();
+                        book.setIsbn(isbn);
+                        book.setDescription(description);
+
+                        newBooks.add(book);
+                        bookContract.setBook(book);
+                        mapBookByCode.put(isbn, book);
+                    }
+
+                    if (mapContractByCode.containsKey(contractCode)) { // A
+                        Contract contract = mapContractByCode.get(contractCode);
+                        bookContract.setContract(contract);
+                    } else {
+                        Contract contract = new Contract();
+                        contract.setCode(contractCode);
+
+                        newContracts.add(contract);
+                        bookContract.setContract(contract);
+                        mapContractByCode.put(contractCode, contract);
+                    }
                 }
 
-                if (mapContractByCode.containsKey(contractCode)) {
-                    Contract contract = mapContractByCode.get(contractCode);
-                    bookContract.setContract(contract);
-                } else {
-                    Contract contract = new Contract();
-                    contract.setCode(contractCode);
-
-                    newContracts.add(contract);
-                    bookContract.setContract(contract);
-                    mapContractByCode.put(contractCode, contract);
-                }
-
+                bookContract.setCustomerNumber(customerCode); // D dù check có tồn tại hay không thì vẫn update
 
                 bookContract.setSampleRemark(sampleRemark);
                 if (StringUtils.isNotEmpty(sampleShelf)) {
@@ -237,7 +258,6 @@ public class BookContractServiceImpl implements BookContractService {
                         bookContract.setSampleArchiveLocation(sampleArchive);
                         mapSampleArchiveByShelf.put(sampleShelf, sampleArchive);
                     }
-
                 }
 
                 bookContract.setSignedSheetRemark(receivedItemRemark);
@@ -282,9 +302,6 @@ public class BookContractServiceImpl implements BookContractService {
             contractsRepository.saveAll(newContracts);
             archiveRepository.saveAll(newArchives);
             bookContractRepository.saveAll(newBookContracts);
-
-
-
 
         } catch (Exception e) {
             e.printStackTrace(); // in ra lỗi
