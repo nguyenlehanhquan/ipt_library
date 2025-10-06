@@ -172,13 +172,13 @@ public class BookContractServiceImpl implements BookContractService {
             Sheet sheet = workbook.getSheetAt(0); // lấy được sheet đầu tiên
 
             for (Row row : sheet) {
-                if (row.getRowNum() == 0) {
+                if (row.getRowNum() == 0) { // bỏ qua hàng nang có index = 0 vì đây là hàm tiêu đề
                     continue;
                 }
                 if (StringUtils.isEmpty(row.getCell(2).getStringCellValue())) { // để tránh nó đọc vào hàng rỗng và vẫn đọc --> lỗi
                     break;
                 }
-                // đọc dữ liệu
+                // đọc dữ liệu - lấy ra tất cả thông tin của file excel vừa được import vào
                 String contractCode = row.getCell(0).getStringCellValue(); // A
                 String orderNumber = row.getCell(1).getStringCellValue(); // B
                 String description = row.getCell(2).getStringCellValue(); // C
@@ -186,8 +186,8 @@ public class BookContractServiceImpl implements BookContractService {
                 Date deliveryDate = row.getCell(4).getDateCellValue(); // E chua biet hien thi duoc hay khong
                 String isbn = row.getCell(5).getStringCellValue(); // F - isbn
 
-                // vi tri
-                String sampleShelf = Objects.nonNull(row.getCell(6)) ? String.valueOf(row.getCell(6)) : null; // G
+                // đọc dữ liệu - lấy ra tất cả thông tin vị trí từng record của file excel vừa được import vào
+                String sampleShelf = Objects.nonNull(row.getCell(6)) ? String.valueOf(row.getCell(6)) : null; // G - chỉ kiểm tra được null, không bắt được "" hay " "
                 String sampleLocation = Objects.nonNull(row.getCell(7)) ? String.valueOf(row.getCell(7)) : null; // H
                 String sampleQuantity = Objects.nonNull(row.getCell(8)) ? String.valueOf(row.getCell(8)) : null; // I
                 String sampleRemark = Objects.nonNull(row.getCell(9)) ? String.valueOf(row.getCell(9)) : null; // J
@@ -206,61 +206,64 @@ public class BookContractServiceImpl implements BookContractService {
 
                 BookContract bookContract;
                 if (mapBookContractByKey.containsKey(key)) {
-                    // lấy bookContract đã tồn tại
-                    bookContract = mapBookContractByKey.get(key);
+                    // lấy bookContract đã tồn tại - nếu key đã tồn tại trong list currentBookContract rồi thì ...
+                    bookContract = mapBookContractByKey.get(key); // lấy ra book contract đã tồn tại đó
                 } else {
-                    // tạo bookcontract, lưu bookcontract
+                    // nếu cái key (contractCode_orderNumber_deliveryDate_ISBN) chưa tồn tại trong list currentBookContracts thì tạo mới
+                    // tạo bookcontract mới, lưu bookcontract
                     bookContract = new BookContract();
                     bookContract.setOrderNumber(orderNumber); // B
                     bookContract.setDeliveryDate(deliveryDate); // E
 
-                    if (mapBookByCode.containsKey(isbn)) { // C, F
+                    if (mapBookByCode.containsKey(isbn)) { // C, F - xem xem ISBN của cuốn sách tồn tại trong hệ thống chưa?
                         Book book = mapBookByCode.get(isbn);
-                        bookContract.setBook(book);
+                        bookContract.setBook(book); // nếu rồi setBook của bookContract mới tạo là cuốn sách đó
                     } else {
-                        Book book = new Book();
+                        Book book = new Book(); // nếu chưa có sách thì tạo mới book và set mới isbn cho cuốn sách đó
                         book.setIsbn(isbn);
                         book.setDescription(description);
 
-                        newBooks.add(book);
-                        bookContract.setBook(book);
-                        mapBookByCode.put(isbn, book);
+                        newBooks.add(book); // thêm cuốn sách mới này vào list book mới được thêm
+                        bookContract.setBook(book); // setBook này là book của record bookContract mới tạo
+                        mapBookByCode.put(isbn, book); // thêm vào map các cuốn sách đang có hiện tại để sau có thể dùng để check lại
                     }
 
-                    if (mapContractByCode.containsKey(contractCode)) { // A
+                    if (mapContractByCode.containsKey(contractCode)) { // A - xem xem mã hợp đồng tồn tại trong hệ thông chưa?
                         Contract contract = mapContractByCode.get(contractCode);
-                        bookContract.setContract(contract);
+                        bookContract.setContract(contract); // nếu rồi thì setContract của bookContract mới tạo là cuốn sách đó
                     } else {
-                        Contract contract = new Contract();
-                        contract.setCode(contractCode);
+                        Contract contract = new Contract(); // nếu chưa có mã hợp đồng nào như này thì tạo mới hợp đồng
+                        contract.setCode(contractCode); // set contractCode của contract mới là contractCode mới được thêm vào
 
-                        newContracts.add(contract);
-                        bookContract.setContract(contract);
-                        mapContractByCode.put(contractCode, contract);
+                        newContracts.add(contract); // thêm contract này vào list các contract mới có
+                        bookContract.setContract(contract); // set contract mớid được thêm vào này là contract trong bookContract
+                        mapContractByCode.put(contractCode, contract); // thêm vào map các hợp đồng đang có hiện tại để sau có gì thì lôi ra check xem tồn tại chưa
                     }
                 }
 
                 bookContract.setCustomerNumber(customerCode); // D dù check có tồn tại hay không thì vẫn update
 
-                bookContract.setSampleRemark(sampleRemark);
-                if (StringUtils.isNotEmpty(sampleShelf)) {
-                    bookContract.setSampleQuantity(Double.valueOf(sampleQuantity).intValue());
-                    if (mapSampleArchiveByShelf.containsKey(sampleShelf)) {
-                        Archive sampleArchive = mapSampleArchiveByShelf.get(sampleShelf);
-                        bookContract.setSampleArchiveLocation(sampleArchive);
+                bookContract.setSampleRemark(sampleRemark); // set remark sách mẫu
+                if (StringUtils.isNotEmpty(sampleShelf)) { // nếu sampleSelf không null và không phải là "" trong file excel thì
+                    bookContract.setSampleQuantity(Double.valueOf(sampleQuantity).intValue()); // set sampleQuantity cho bookContract được tạo mới
+                    if (mapSampleArchiveByShelf.containsKey(sampleShelf)) { // nếu SampleArchive có tồn tại rồi thì
+                        Archive sampleArchive = mapSampleArchiveByShelf.get(sampleShelf); // lấy ra cái sampleArchive đã tồn tại đó trong map currentArchive
+                        bookContract.setSampleArchiveLocation(sampleArchive); // lưu map đó vào thằng bookcontract được tạo mới
                     } else {
-                        Archive sampleArchive = new Archive();
-                        sampleArchive.setArchiveType(ArchiveType.SAMPLE);
-                        sampleArchive.setShelf(sampleShelf);
-                        sampleArchive.setLocation(sampleLocation);
+                        Archive sampleArchive = new Archive();  // nếu chưa có sample archive nào cả thì tạo sampleArchive mới đó
+                        sampleArchive.setArchiveType(ArchiveType.SAMPLE); // set type của archive bằng SAMPLE
+                        sampleArchive.setShelf(sampleShelf); // set Shelf của sample là sampleShelf vừa lấy được từ excel
+                        sampleArchive.setLocation(sampleLocation); // set Location của sample là sampleLocation vừa lấy được từ excel
 
-                        newArchives.add(sampleArchive);
-                        bookContract.setSampleArchiveLocation(sampleArchive);
-                        mapSampleArchiveByShelf.put(sampleShelf, sampleArchive);
+                        newArchives.add(sampleArchive); // thêm cái archive này vào list các archive mới có
+                        bookContract.setSampleArchiveLocation(sampleArchive); // set cái archive này là Sample Archive Location cho cái bookContract mới tạo
+                        mapSampleArchiveByShelf.put(sampleShelf, sampleArchive); // thêm cái sampleShelf và vị trị này vào list map các sampleShelf đã tồn tại
+
+                        // vì sao ngay từ ban đầu không tạo chỉ 1 list Archives thôi mà phải phân chia ra thành 3 list current Archive riêng biệt ?
                     }
                 }
 
-                bookContract.setSignedSheetRemark(receivedItemRemark);
+                bookContract.setReceivedItemRemark(receivedItemRemark); // set remark túi công việc đã nhận
                 if (StringUtils.isNotEmpty(receivedItemShelf)) {
                     bookContract.setReceivedItemQuantity(Double.valueOf(receivedItemQuantity).intValue());
                     if (mapReceivedItemArchiveByShelf.containsKey(receivedItemShelf)) {
@@ -298,10 +301,10 @@ public class BookContractServiceImpl implements BookContractService {
             }
 
             // Phải lưu theo thứ tự này
-            bookRepository.saveAll(newBooks);
-            contractsRepository.saveAll(newContracts);
-            archiveRepository.saveAll(newArchives);
-            bookContractRepository.saveAll(newBookContracts);
+            bookRepository.saveAll(newBooks); // lưu tất cả các book mới thêm vào Databse
+            contractsRepository.saveAll(newContracts); // lưu tất cả các contract mới thêm vào Database
+            archiveRepository.saveAll(newArchives); // lưu tất cả các archive mới thêm vào Database
+            bookContractRepository.saveAll(newBookContracts); // lưu tất cả các bookContract mới thêm vào Database
 
         } catch (Exception e) {
             e.printStackTrace(); // in ra lỗi
