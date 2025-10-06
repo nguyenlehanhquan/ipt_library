@@ -12,6 +12,7 @@ import advanced.ipt_library.response.BookContractResponse;
 import advanced.ipt_library.service.BookContractService;
 import org.apache.commons.lang3.StringUtils;
 import lombok.RequiredArgsConstructor;
+import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -167,6 +168,8 @@ public class BookContractServiceImpl implements BookContractService {
         // trong for
         // String key = A_B_E_F lấy từ trong excel
 
+        DataFormatter formatter = new DataFormatter();
+
         try {
             Workbook workbook = new XSSFWorkbook(file.getInputStream()); // lấy được file excel ra
             Sheet sheet = workbook.getSheetAt(0); // lấy được sheet đầu tiên
@@ -180,26 +183,26 @@ public class BookContractServiceImpl implements BookContractService {
                 }
                 // đọc dữ liệu - lấy ra tất cả thông tin của file excel vừa được import vào
                 String contractCode = row.getCell(0).getStringCellValue(); // A
-                String orderNumber = row.getCell(1).getStringCellValue(); // B
+                String orderNumber = formatter.formatCellValue(row.getCell(1)); // B
                 String description = row.getCell(2).getStringCellValue(); // C
                 String customerCode = row.getCell(3).getStringCellValue(); // D
                 Date deliveryDate = row.getCell(4).getDateCellValue(); // E chua biet hien thi duoc hay khong
-                String isbn = row.getCell(5).getStringCellValue(); // F - isbn
+                String isbn = formatter.formatCellValue(row.getCell(5)); // F - isbn
 
                 // đọc dữ liệu - lấy ra tất cả thông tin vị trí từng record của file excel vừa được import vào
                 String sampleShelf = Objects.nonNull(row.getCell(6)) ? String.valueOf(row.getCell(6)) : null; // G - chỉ kiểm tra được null, không bắt được "" hay " "
-                String sampleLocation = Objects.nonNull(row.getCell(7)) ? String.valueOf(row.getCell(7)) : null; // H
-                String sampleQuantity = Objects.nonNull(row.getCell(8)) ? String.valueOf(row.getCell(8)) : null; // I
+                String sampleLocation = Objects.nonNull(row.getCell(7)) ? formatter.formatCellValue(row.getCell(7)) : null; // H
+                String sampleQuantity = Objects.nonNull(row.getCell(8)) ? formatter.formatCellValue(row.getCell(8)) : null; // I
                 String sampleRemark = Objects.nonNull(row.getCell(9)) ? String.valueOf(row.getCell(9)) : null; // J
 
                 String receivedItemShelf = Objects.nonNull(row.getCell(10)) ? String.valueOf(row.getCell(10)) : null; // K
-                String receivedItemLocation = Objects.nonNull(row.getCell(11)) ? String.valueOf(row.getCell(11)) : null; // L
-                String receivedItemQuantity = Objects.nonNull(row.getCell(12)) ? String.valueOf(row.getCell(12)) : null; // M
+                String receivedItemLocation = Objects.nonNull(row.getCell(11)) ? formatter.formatCellValue(row.getCell(11)) : null; // L
+                String receivedItemQuantity = Objects.nonNull(row.getCell(12)) ? formatter.formatCellValue(row.getCell(12)) : null; // M
                 String receivedItemRemark = Objects.nonNull(row.getCell(13)) ? String.valueOf(row.getCell(13)) : null; // N
 
                 String signedSheetShelf = Objects.nonNull(row.getCell(14)) ? String.valueOf(row.getCell(14)) : null; // O
-                String signedSheetLocation = Objects.nonNull(row.getCell(15)) ? String.valueOf(row.getCell(15)) : null; // P
-                String signedSheetQuantity = Objects.nonNull(row.getCell(16)) ? String.valueOf(row.getCell(16)) : null; // Q
+                String signedSheetLocation = Objects.nonNull(row.getCell(15)) ? formatter.formatCellValue(row.getCell(15)) : null; // P
+                String signedSheetQuantity = Objects.nonNull(row.getCell(16)) ? formatter.formatCellValue(row.getCell(16)) : null; // Q
                 String signedSheetRemark = Objects.nonNull(row.getCell(17)) ? String.valueOf(row.getCell(17)) : null; // R
 
                 String key = contractCode + "_" + orderNumber + "_" + (Objects.nonNull(deliveryDate) ? sdf.format(deliveryDate) : StringUtils.EMPTY) + "_" + isbn;
@@ -261,6 +264,9 @@ public class BookContractServiceImpl implements BookContractService {
 
                         // vì sao ngay từ ban đầu không tạo chỉ 1 list Archives thôi mà phải phân chia ra thành 3 list current Archive riêng biệt ?
                     }
+                } else {
+                    bookContract.setSampleArchiveLocation(null);
+                    bookContract.setSampleQuantity(null);
                 }
 
                 bookContract.setReceivedItemRemark(receivedItemRemark); // set remark túi công việc đã nhận
@@ -279,6 +285,9 @@ public class BookContractServiceImpl implements BookContractService {
                         bookContract.setReceivedItemArchiveLocation(receivedItemArchive);
                         mapReceivedItemArchiveByShelf.put(receivedItemShelf, receivedItemArchive);
                     }
+                } else {
+                    bookContract.setReceivedItemArchiveLocation(null);
+                    bookContract.setReceivedItemQuantity(null);
                 }
 
                 bookContract.setSignedSheetRemark(signedSheetRemark);
@@ -297,7 +306,12 @@ public class BookContractServiceImpl implements BookContractService {
                         bookContract.setSignedSheetArchiveLocation(newSampleArchive);
                         mapArchiveBySignedSheet.put(signedSheetShelf, newSampleArchive);
                     }
+                } else {
+                    bookContract.setSignedSheetArchiveLocation(null);
+                    bookContract.setSignedSheetQuantity(null);
                 }
+
+                newBookContracts.add(bookContract);
             }
 
             // Phải lưu theo thứ tự này
@@ -306,8 +320,15 @@ public class BookContractServiceImpl implements BookContractService {
             archiveRepository.saveAll(newArchives); // lưu tất cả các archive mới thêm vào Database
             bookContractRepository.saveAll(newBookContracts); // lưu tất cả các bookContract mới thêm vào Database
 
+            // khuyến khích dùng String.valueOf() thay vì toString()
+
         } catch (Exception e) {
             e.printStackTrace(); // in ra lỗi
         }
     }
 }
+
+// bỏ not null trong entity và database
+// data formatter vào các trường dễ lỗi string
+// thêm else vào trường hợp chạy vào "" (blank)
+// postman gọi api - POST - body + param "file" - value: excel file

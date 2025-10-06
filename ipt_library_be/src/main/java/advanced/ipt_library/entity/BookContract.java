@@ -45,7 +45,7 @@ public class BookContract extends BaseEntity {
     private Archive receivedItemArchiveLocation;
 
     @Column(name = "received_item_quantity")
-    private int receivedItemQuantity;
+    private Integer receivedItemQuantity;
 
     @Column(name = "received_item_remark")
     private String receivedItemRemark;

@@ -49,6 +49,7 @@ public class BookContractController {
     // lưu lại thời gian import
     @PostMapping("/importexcel")
     public ResponseEntity<?> importExcel(@RequestParam("file") MultipartFile file) {
+        bookContractService.importExcel(file);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

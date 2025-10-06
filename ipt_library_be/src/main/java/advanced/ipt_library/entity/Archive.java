@@ -22,6 +22,6 @@ public class Archive extends BaseEntity {
     @Column(nullable = false, unique = true, length = 127)
     private String shelf;
 
-    @Column(nullable = false, unique = true, length = 127)
+    @Column(unique = true, length = 127)
     private String location;
 }
