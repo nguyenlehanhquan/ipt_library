@@ -21,7 +21,7 @@ public class BookController {
     private final BookService bookService;
 
     @GetMapping
-    @PreAuthorize("hasRole('USER')")
+//    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<ApiResponse> findAll() {
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse("Get all books", bookService.findAll()));
     }
