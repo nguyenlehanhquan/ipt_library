@@ -10,8 +10,8 @@ import advanced.ipt_library.repository.ContractRepository;
 import advanced.ipt_library.request.BookContractRequest;
 import advanced.ipt_library.response.BookContractResponse;
 import advanced.ipt_library.service.BookContractService;
-import org.apache.commons.lang3.StringUtils;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -50,6 +50,12 @@ public class BookContractServiceImpl implements BookContractService {
     public void create(BookContractRequest bookContractRequest) throws ParseException {
         // bookContractRequest -> entity BookContract -> save
         Optional<Book> optionalBook = bookRepository.findById(bookContractRequest.getBookId());
+
+        // check tồn tại không?
+        // contractId
+        // sampleId
+        // receivedItemId
+        // signedSheetId
 
         // BookId -> Book
         if (optionalBook.isEmpty()) {
@@ -126,7 +132,7 @@ public class BookContractServiceImpl implements BookContractService {
 
         List<Contract> currentContracts = contractsRepository.findAll();
         Map<String, Contract> mapContractByCode = currentContracts.stream()
-                .collect(Collectors.toMap(contract -> contract.getCode(), ct  -> ct));
+                .collect(Collectors.toMap(contract -> contract.getCode(), ct -> ct));
 
 //        currentContracts.stream().filter(i -> i.getCode().equals("abc")).toList();
 //        for (Contract contract : currentContracts) {
@@ -162,9 +168,9 @@ public class BookContractServiceImpl implements BookContractService {
                 .collect(Collectors.toMap(
                         bc ->
                                 bc.getContract().getCode() + "_"
-                                + bc.getOrderNumber() + "_"
-                                + (Objects.nonNull(bc.getDeliveryDate()) ? sdf.format(bc.getDeliveryDate()) : StringUtils.EMPTY) + "_"
-                                + bc.getBook().getIsbn(), bookContract -> bookContract));
+                                        + bc.getOrderNumber() + "_"
+                                        + (Objects.nonNull(bc.getDeliveryDate()) ? sdf.format(bc.getDeliveryDate()) : StringUtils.EMPTY) + "_"
+                                        + bc.getBook().getIsbn(), bookContract -> bookContract));
         // trong for
         // String key = A_B_E_F lấy từ trong excel
 
