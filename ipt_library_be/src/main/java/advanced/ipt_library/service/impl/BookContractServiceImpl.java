@@ -20,6 +20,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.OutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -330,6 +331,24 @@ public class BookContractServiceImpl implements BookContractService {
 
         } catch (Exception e) {
             e.printStackTrace(); // in ra lỗi
+        }
+    }
+
+    @Override
+    public void exportExcel(OutputStream os) {
+        // xuất được một file excel trắng
+        try {
+            Workbook workbook = new XSSFWorkbook();
+            Sheet sheet = workbook.createSheet("book_contracts");
+
+            // lưu các thông tin vào trong các cell
+            workbook.write(os);
+            os.flush();
+            workbook.close();
+            os.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }
