@@ -27,7 +27,7 @@ public class BookContract extends BaseEntity {
     @Column(name = "order_number", nullable = false)
     private String orderNumber;
 
-    @Column(name = "customer_code", nullable = false)
+    @Column(name = "customer_code")
     private String customerNumber;
 
     @JoinColumn(name = "sample_archive_location_id", nullable = false)
