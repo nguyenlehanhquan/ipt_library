@@ -20,6 +20,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -336,12 +337,73 @@ public class BookContractServiceImpl implements BookContractService {
 
     @Override
     public void exportExcel(OutputStream os) {
+
+        String templatePath = "templates/template.xlsx";
         // xuất được một file excel trắng
         try {
-            Workbook workbook = new XSSFWorkbook();
-            Sheet sheet = workbook.createSheet("book_contracts");
+            InputStream inputStream = getClass().getClassLoader().getResourceAsStream(templatePath);
+
+            Workbook workbook = new XSSFWorkbook(inputStream);
+//            Sheet sheet = workbook.createSheet("book_contracts");
+            workbook.setSheetName(0, "book_contracts_1");
+            Sheet sheet = workbook.getSheetAt(0); // gọi ra sheet số 1 để ghi vào
 
             // lưu các thông tin vào trong các cell
+            // 1. lấy ra list book_contract trong database
+            List<BookContract> bookContracts = bookContractRepository.findAll();
+            int startRow = 1;
+            for (BookContract bookContract : bookContracts) {
+                Row row = sheet.createRow(startRow++);
+                row.createCell(0).setCellValue(bookContract.getContract().getCode()); // A
+                row.createCell(1).setCellValue(bookContract.getOrderNumber()); // B
+                row.createCell(2).setCellValue(bookContract.getBook().getDescription()); // C
+                row.createCell(3).setCellValue(bookContract.getCustomerNumber()); // D
+                row.createCell(4).setCellValue(bookContract.getDeliveryDate()); // E
+                row.createCell(5).setCellValue(bookContract.getBook().getIsbn()); // F
+
+                // sample
+                if (Objects.nonNull(bookContract.getSampleArchiveLocation())) {
+                    row.createCell(6).setCellValue(bookContract.getSampleArchiveLocation().getShelf()); // G
+                    row.createCell(7).setCellValue(bookContract.getSampleArchiveLocation().getLocation()); // H
+
+                    if (Objects.isNull(bookContract.getSampleQuantity())) {
+                        row.createCell(8).setCellValue(StringUtils.EMPTY);
+                    } else {
+                        row.createCell(8).setCellValue(bookContract.getSampleQuantity()); // I
+                    }
+                }
+
+                row.createCell(9).setCellValue(bookContract.getSampleRemark()); // J
+
+                // old
+                if (Objects.nonNull(bookContract.getReceivedItemArchiveLocation())) {
+                    row.createCell(10).setCellValue(bookContract.getReceivedItemArchiveLocation().getShelf());
+                    row.createCell(11).setCellValue(bookContract.getReceivedItemArchiveLocation().getLocation());
+
+                    if (Objects.isNull(bookContract.getReceivedItemQuantity())) {
+                        row.createCell(12).setCellValue(StringUtils.EMPTY);
+                    } else {
+                        row.createCell(12).setCellValue(bookContract.getReceivedItemQuantity());
+                    }
+                }
+
+                row.createCell(13).setCellValue(bookContract.getReceivedItemRemark());
+
+                // new
+                if (Objects.nonNull(bookContract.getSignedSheetArchiveLocation())) {
+                    row.createCell(14).setCellValue(bookContract.getSignedSheetArchiveLocation().getShelf());
+                    row.createCell(15).setCellValue(bookContract.getSignedSheetArchiveLocation().getLocation());
+
+                    if (Objects.isNull(bookContract.getSignedSheetQuantity())) {
+                        row.createCell(16).setCellValue(StringUtils.EMPTY);
+                    } else {
+                        row.createCell(16).setCellValue(bookContract.getSignedSheetQuantity());
+                    }
+                }
+
+                row.createCell(17).setCellValue(bookContract.getSignedSheetRemark());
+            }
+
             workbook.write(os);
             os.flush();
             workbook.close();
