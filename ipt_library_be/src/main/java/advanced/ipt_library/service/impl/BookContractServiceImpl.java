@@ -10,6 +10,7 @@ import advanced.ipt_library.repository.ContractRepository;
 import advanced.ipt_library.request.BookContractRequest;
 import advanced.ipt_library.response.BookContractResponse;
 import advanced.ipt_library.service.BookContractService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.DataFormatter;
@@ -121,6 +122,7 @@ public class BookContractServiceImpl implements BookContractService {
     }
 
     @Override
+    @Transactional
     public void importExcel(MultipartFile file) {
         // lưu lại cái gì
         List<BookContract> newBookContracts = new ArrayList<>();
@@ -305,14 +307,14 @@ public class BookContractServiceImpl implements BookContractService {
                         Archive newSampleArchive = mapArchiveBySignedSheet.get(signedSheetShelf);
                         bookContract.setSignedSheetArchiveLocation(newSampleArchive);
                     } else {
-                        Archive newSampleArchive = new Archive();
-                        newSampleArchive.setArchiveType(ArchiveType.SIGNED_SHEET);
-                        newSampleArchive.setShelf(signedSheetShelf);
-                        newSampleArchive.setLocation(signedSheetLocation);
+                        Archive signedSheetArchive = new Archive();
+                        signedSheetArchive.setArchiveType(ArchiveType.SIGNED_SHEET);
+                        signedSheetArchive.setShelf(signedSheetShelf);
+                        signedSheetArchive.setLocation(signedSheetLocation);
 
-                        newArchives.add(newSampleArchive);
-                        bookContract.setSignedSheetArchiveLocation(newSampleArchive);
-                        mapArchiveBySignedSheet.put(signedSheetShelf, newSampleArchive);
+                        newArchives.add(signedSheetArchive);
+                        bookContract.setSignedSheetArchiveLocation(signedSheetArchive);
+                        mapArchiveBySignedSheet.put(signedSheetShelf, signedSheetArchive);
                     }
                 } else {
                     bookContract.setSignedSheetArchiveLocation(null);

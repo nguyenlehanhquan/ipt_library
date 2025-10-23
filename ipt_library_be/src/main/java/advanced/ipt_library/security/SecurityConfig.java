@@ -39,7 +39,7 @@ public class SecurityConfig { // api thì sẽ nhảy vào cái này trước ti
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
 //                        .requestMatchers("/books/**").hasAnyRole("USER")
-                        .requestMatchers("auth/login").permitAll()
+                        .requestMatchers("auth/login", "book_contracts/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(authEntryPoint) // lỗi xác thực 401

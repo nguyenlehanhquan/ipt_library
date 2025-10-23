@@ -3,6 +3,7 @@ create database if not exists ipt_library;
 
 use ipt_library;
 
+drop table if exists users;
 create table if not exists users (
     id int auto_increment primary key,
     created     timestamp default CURRENT_TIMESTAMP,
@@ -14,6 +15,7 @@ create table if not exists users (
     role varchar(255) not null
 );
 
+drop table if exists books;
 create table if not exists books (
     id int auto_increment primary key,
     created     timestamp default CURRENT_TIMESTAMP,
@@ -25,6 +27,7 @@ create table if not exists books (
     author varchar(255)
 );
 
+drop table if exists contracts;
 create table if not exists contracts (
     id int auto_increment primary key,
     created     timestamp default CURRENT_TIMESTAMP,
@@ -34,6 +37,7 @@ create table if not exists contracts (
     contract_code varchar(255) unique
 );
 
+drop table if exists archives;
 create table if not exists archives (
     id int auto_increment primary key,
     created     timestamp default CURRENT_TIMESTAMP,
@@ -45,6 +49,7 @@ create table if not exists archives (
     location varchar(127) unique
 );
 
+drop table if exists book_contract;
 create table if not exists book_contract (
     id int auto_increment primary key,
     created     timestamp default CURRENT_TIMESTAMP,
