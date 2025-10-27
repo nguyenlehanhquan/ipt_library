@@ -3,7 +3,9 @@ package advanced.ipt_library.service;
 import advanced.ipt_library.request.CreateBookRequest;
 import advanced.ipt_library.request.UpdateBookRequest;
 import advanced.ipt_library.response.BookResponse;
+import net.sf.jasperreports.engine.JRException;
 
+import java.io.OutputStream;
 import java.util.List;
 
 public interface BookService {
@@ -12,4 +14,5 @@ public interface BookService {
     void create(CreateBookRequest request);
     void update(Integer id, UpdateBookRequest request);
     void delete(Integer id);
+    void exportPdf(OutputStream outputStream) throws JRException;
 }

@@ -11,11 +11,27 @@ import advanced.ipt_library.request.UpdateBookRequest;
 import advanced.ipt_library.response.BookResponse;
 import advanced.ipt_library.service.BookService;
 import lombok.RequiredArgsConstructor;
+import net.sf.jasperreports.engine.JRDataSource;
+import net.sf.jasperreports.engine.JREmptyDataSource;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperCompileManager;
+import net.sf.jasperreports.engine.JasperExportManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -82,5 +98,32 @@ public class BookServiceImpl implements BookService {
         bookRepository.delete(book);
     }
 
+    @Override
+    public void exportPdf(OutputStream outputStream) throws JRException {
+        // lấy 1 book bất kỳ
+        Book book = bookRepository.findAll().stream().findFirst().orElse(null); // findFirst trả ra cho mình Optional<T>
+        List<Contract> contracts = new ArrayList<>();
+        if (Objects.nonNull(book)) {
+            // xuất file
+            String templatePath = "templates/jasper/demo.jrxml";
+            InputStream inputStream = getClass().getClassLoader().getResourceAsStream(templatePath);
 
+            JasperReport jasperReport = JasperCompileManager.compileReport(inputStream);
+
+            Map<String, Object> parameters = new HashMap<>();
+            // vì jasper report trả về các kiểu dữ liệu khác nhau nhưng cùng là dạng object
+            // --> để dữ liệu là dạng Object, key là String
+            parameters.put("description", book.getDescription()); // params bên jasper
+            parameters.put("isbn", book.getIsbn()); // params bên jasper
+
+            JRDataSource dataSource = new JRBeanCollectionDataSource(contracts);
+
+            JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, new JREmptyDataSource());
+            // jasperReport : file
+            // parameters : biến được truyền vào
+            // bình thường nếu truyền một list vào trong file thì dùng JRDataSource() ở biến thứ 3
+            // nhưng nếu không truyền List<?> nào cả thì dùng JREmptyDataSource()
+            JasperExportManager.exportReportToPdfStream(jasperPrint, outputStream);
+        }
+    }
 }
