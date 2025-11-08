@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:5173") // mở CORS
 public class AuthController {
 
     private final UserService userService;

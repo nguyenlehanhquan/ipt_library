@@ -18,11 +18,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true) // phải có cái này thì mới dùng PreAuthorize ở controller
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:5173")
 public class SecurityConfig { // api thì sẽ nhảy vào cái này trước tiên
 
     private final JWTFilter jwtFilter;
@@ -38,7 +40,7 @@ public class SecurityConfig { // api thì sẽ nhảy vào cái này trước ti
         http.csrf(csrf -> csrf.disable())
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-//                        .requestMatchers("/books/**").hasAnyRole("USER")
+//                        .requestMatchers("/books/**").hasAnyRole("ADMIN")
                         .requestMatchers("auth/login", "book_contracts/**").permitAll()
                         .anyRequest().authenticated()
                 )

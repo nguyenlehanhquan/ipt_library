@@ -22,9 +22,6 @@ public class Book extends BaseEntity {
     // độ dài mặc định của String đã là 255 rồi nên không nên cần để là length = 255 . columnDefinition = "TEXT" thì sẽ giúp mình viết text vô hạn
     private String description;
 
-    @Column(name = "author")
-    private String author;
-
 //    @Column(name = "name", length = 255)
 //    private String name;
 

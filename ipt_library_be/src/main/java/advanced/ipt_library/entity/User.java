@@ -14,6 +14,9 @@ public class User extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;         // vì sao lại để int ở đây? sao không dùng Integer?
 
+    @Column(name = "full_name")
+    private String fullName;
+
     @Column(name = "username", nullable = false, unique = true)
     private String username;
 

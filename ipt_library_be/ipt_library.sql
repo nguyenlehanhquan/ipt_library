@@ -10,6 +10,7 @@ create table if not exists users (
     creator     varchar(50),
     updated     timestamp default CURRENT_TIMESTAMP,
     updater     varchar(50),
+    full_name varchar(255),
     username varchar(255) not null unique,
     password varchar(255) not null,
     role varchar(255) not null
@@ -23,8 +24,7 @@ create table if not exists books (
     updated     timestamp default CURRENT_TIMESTAMP,
     updater     varchar(50),
     isbn varchar(15) unique,
-    description varchar(255) not null,
-    author varchar(255)
+    description varchar(255) not null
 );
 
 drop table if exists contracts;

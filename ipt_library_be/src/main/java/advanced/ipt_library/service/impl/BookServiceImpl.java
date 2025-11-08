@@ -71,7 +71,6 @@ public class BookServiceImpl implements BookService {
 
         book.setIsbn(request.getIsbn());
         book.setDescription(request.getDescription());
-        book.setAuthor(request.getAuthor());
 
         bookRepository.save(book);
     }
@@ -87,7 +86,6 @@ public class BookServiceImpl implements BookService {
 
         book.setIsbn(request.getIsbn());
         book.setDescription(request.getDescription());
-        book.setAuthor(request.getAuthor());
 
         bookRepository.save(book);
     }
