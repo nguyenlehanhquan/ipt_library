@@ -49,6 +49,14 @@ public abstract class BaseEntity {
     }
 
     private String getUsername() {
-        return ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+//        return ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+
+        // đoạn ở dưới là ChatGPT sửa để cho người lạ vẫn có thể tạo user được chứ không nhất thiết phải là người đã có tài khoản rồi
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (principal instanceof org.springframework.security.core.userdetails.User user) {
+            return user.getUsername();
+        }
+        return "USER"; // hoặc "anonymous" để save vào DB
     }
 }
