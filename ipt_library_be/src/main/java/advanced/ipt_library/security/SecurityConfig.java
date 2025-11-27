@@ -42,8 +42,8 @@ public class SecurityConfig { // api thì sẽ nhảy vào cái này trước ti
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
 //                        .requestMatchers("/books/**").hasAnyRole("ADMIN")
-                        .requestMatchers("auth/login", "book_contracts/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "users").permitAll()
+                        .requestMatchers("/auth/login", "/book_contracts/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/users").permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(authEntryPoint) // lỗi xác thực 401

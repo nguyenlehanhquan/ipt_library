@@ -1,5 +1,6 @@
 package advanced.ipt_library.service.impl;
 
+import advanced.ipt_library.entity.Role;
 import advanced.ipt_library.entity.User;
 import advanced.ipt_library.repository.UserRepository;
 import advanced.ipt_library.request.AuthRequest;
@@ -15,6 +16,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -29,6 +31,7 @@ public class UserServiceImpl implements UserService {
     private final JWTUtils jwtUtils;
 
     private final AuthenticationManager authenticationManager;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public List<UserResponse> findAll() {
@@ -53,9 +56,11 @@ public class UserServiceImpl implements UserService {
     public void create(CreateUserRequest request) {
 
         User user = new User();
+        user.setFullName(request.getFullName());
         user.setUsername(request.getUsername());
-        user.setPassword(request.getPassword());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
 
+        user.setRole(Role.USER);
         userRepository.save(user);
     }
 
