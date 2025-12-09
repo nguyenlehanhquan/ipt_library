@@ -16,6 +16,9 @@ create table if not exists users (
     role varchar(255) not null
 );
 
+drop trigger add_creator_on_change;
+DELIMITER $$ CREATE Trigger add_creator_on_change  BEFORE INSERT ON users  FOR EACH ROW BEGIN IF NEW.creator = '' or NEW.creator is null THEN SET NEW.creator = NEW.username; END IF;  end $$ DELIMITER ;
+
 drop table if exists books;
 create table if not exists books (
     id int auto_increment primary key,

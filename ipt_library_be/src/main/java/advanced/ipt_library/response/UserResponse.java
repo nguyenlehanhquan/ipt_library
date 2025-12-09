@@ -5,5 +5,6 @@ import lombok.Data;
 @Data
 public class UserResponse {  // DTO, kết quả trả ra
     private int id;
+    private String fullName;
     private String username;
 }

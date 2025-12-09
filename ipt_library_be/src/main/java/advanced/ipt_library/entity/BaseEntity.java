@@ -57,6 +57,6 @@ public abstract class BaseEntity {
         if (principal instanceof org.springframework.security.core.userdetails.User user) {
             return user.getUsername();
         }
-        return "USER"; // hoặc "anonymous" để save vào DB
+        return ""; // hoặc "anonymous" để save vào DB
     }
 }

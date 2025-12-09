@@ -45,6 +45,7 @@ public class UserServiceImpl implements UserService {
         for (User user : users) {
             UserResponse response = new UserResponse();
             response.setId(user.getId());
+            response.setFullName(user.getFullName());
             response.setUsername(user.getUsername());
             UserResponses.add(response);
         }
