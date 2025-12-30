@@ -8,8 +8,8 @@ import advanced.ipt_library.repository.ContractRepository;
 import advanced.ipt_library.request.CreateContractRequest;
 import advanced.ipt_library.request.UpdateContractRequest;
 import advanced.ipt_library.response.ContractResponse;
-import advanced.ipt_library.service.BookContractService;
 import advanced.ipt_library.service.ContractService;
+import advanced.ipt_library.utils.HistoryUtils;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -23,6 +23,7 @@ public class ContractServiceImpl implements ContractService {
 
     private final ContractRepository contractRepository;
     private final ModelMapper mapper;
+    private final HistoryUtils historyUtils;
 
     @Override
     public List<ContractResponse> findAll() {
@@ -47,6 +48,7 @@ public class ContractServiceImpl implements ContractService {
         newContract.setCode(request.getCode());
 
         contractRepository.save(newContract);
+//
     }
 
     @Override
@@ -60,13 +62,13 @@ public class ContractServiceImpl implements ContractService {
 
         contract.setCode(request.getCode());
         contractRepository.save(contract);
+        historyUtils.addHistory(contract.getClass().getSimpleName(), "update", contract.toString(), null, null, null);
     }
 
     @Override
     public void delete(int id) {
         Contract contract = contractRepository.findById(id).orElseThrow(() -> new NotFoundException("Contract does not exist", ErrorCodeConstant.no_existing_data));
         contractRepository.delete(contract);
+        historyUtils.addHistory(contract.getClass().getSimpleName(), "delete", contract.toString(), null, null, null);
     }
-
-
 }

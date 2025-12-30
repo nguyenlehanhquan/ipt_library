@@ -86,10 +86,25 @@ create table if not exists book_contract (
     foreign key (contract_id) references contracts(id) on delete cascade
 );
 
+create table histories (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    created timestamp default CURRENT_TIMESTAMP,
+    creator varchar(50),
+    updated timestamp,
+    updater varchar(50),
+    object varchar(50), -- user, book,....
+    action varchar(50),
+    data_before text,  -- json
+    data_after text,     -- json
+    description varchar(255),
+    user_login varchar(50)
+);
+
 alter table users auto_increment = 1;
 alter table books auto_increment = 1;
 alter table contracts auto_increment = 1;
 alter table archives auto_increment = 1;
 alter table book_contract auto_increment = 1;
+alter table histories auto_increment = 1;
 
 
